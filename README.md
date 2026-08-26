@@ -38,9 +38,15 @@ Create a `.env` file in the project root:
 
 ```bash
 OPENROUTER_API_KEY=sk-or-v1-...
+COGNITION_API_KEY=...
+# Optional; defaults to https://api.cognition.ai/v1
+COGNITION_API_BASE=https://api.cognition.ai/v1
 ```
 
 Get your API key at [openrouter.ai](https://openrouter.ai/). Make sure to purchase the credits you need, or sign up for automatic top up.
+The Cognition API key is used for Cognition SWE models. Model ids are
+provider-prefixed: `cognition/swe-1.7` routes to Cognition, and other ids
+route to OpenRouter.
 
 ### 3. Configure Models (Optional)
 
@@ -52,6 +58,7 @@ COUNCIL_MODELS = [
     "google/gemini-3-pro-preview",
     "anthropic/claude-sonnet-4.5",
     "x-ai/grok-4",
+    "cognition/swe-1.7",
 ]
 
 CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
@@ -81,7 +88,7 @@ Then open http://localhost:5173 in your browser.
 
 ## Tech Stack
 
-- **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API
+- **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter and Cognition APIs
 - **Frontend:** React + Vite, react-markdown for rendering
 - **Storage:** JSON files in `data/conversations/`
 - **Package Management:** uv for Python, npm for JavaScript

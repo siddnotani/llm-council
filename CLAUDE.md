@@ -11,14 +11,18 @@ LLM Council is a 3-stage deliberation system where multiple LLMs collaboratively
 ### Backend Structure (`backend/`)
 
 **`config.py`**
-- Contains `COUNCIL_MODELS` (list of OpenRouter model identifiers)
+- Contains `COUNCIL_MODELS` (provider-prefixed model identifiers)
 - Contains `CHAIRMAN_MODEL` (model that synthesizes final answer)
 - Uses environment variable `OPENROUTER_API_KEY` from `.env`
+- Uses `COGNITION_API_KEY` and optional `COGNITION_API_BASE` for Cognition
+  SWE models
 - Backend runs on **port 8001** (NOT 8000 - user had another app on 8000)
 
-**`openrouter.py`**
+**`llm.py`**
 - `query_model()`: Single async model query
 - `query_models_parallel()`: Parallel queries using `asyncio.gather()`
+- Routes `cognition/` model ids to Cognition's OpenAI-compatible API after
+  stripping the provider prefix; all other ids use OpenRouter
 - Returns dict with 'content' and optional 'reasoning_details'
 - Graceful degradation: returns None on failure, continues with successful responses
 
@@ -123,7 +127,9 @@ All backend modules use relative imports (e.g., `from .config import ...`) not a
 All ReactMarkdown components must be wrapped in `<div className="markdown-content">` for proper spacing. This class is defined globally in `index.css`.
 
 ### Model Configuration
-Models are hardcoded in `backend/config.py`. Chairman can be same or different from council members. The current default is Gemini as chairman per user preference.
+Models are hardcoded in `backend/config.py` as provider-prefixed ids.
+Chairman can be same or different from council members. The current default
+is Gemini as chairman per user preference.
 
 ## Common Gotchas
 
@@ -143,7 +149,9 @@ Models are hardcoded in `backend/config.py`. Chairman can be same or different f
 
 ## Testing Notes
 
-Use `test_openrouter.py` to verify API connectivity and test different model identifiers before adding to council. The script tests both streaming and non-streaming modes.
+Use a provider client test script to verify API connectivity and test model
+identifiers before adding them to the council. The client supports the
+non-streaming chat completions request used by both providers.
 
 ## Data Flow Summary
 
