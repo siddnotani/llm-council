@@ -30,13 +30,15 @@ function App() {
 
   // Load conversations on mount
   useEffect(() => {
-    queueMicrotask(loadConversations);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- state is set asynchronously after the fetch resolves
+    loadConversations();
   }, [loadConversations]);
 
   // Load conversation details when selected
   useEffect(() => {
     if (currentConversationId) {
-      queueMicrotask(() => loadConversation(currentConversationId));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- state is set asynchronously after the fetch resolves
+      loadConversation(currentConversationId);
     }
   }, [currentConversationId, loadConversation]);
 
