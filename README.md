@@ -79,6 +79,8 @@ npm run dev
 
 Then open http://localhost:5173 in your browser.
 
+The backend listens on 127.0.0.1 only. To reach it from another machine, set `LLM_COUNCIL_HOST` (e.g. `LLM_COUNCIL_HOST=0.0.0.0`); the API has no authentication, so only do this on a trusted network.
+
 ## Tech Stack
 
 - **Backend:** FastAPI (Python 3.10+), async httpx, OpenRouter API

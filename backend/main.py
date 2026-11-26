@@ -3,8 +3,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any
+import os
 import uuid
 import json
 import asyncio
@@ -13,6 +14,9 @@ from . import storage
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
 app = FastAPI(title="LLM Council API")
+
+# Each message fans out to ~10 paid model calls, so cap its size.
+MAX_MESSAGE_LENGTH = 50_000
 
 # Enable CORS for local development
 app.add_middleware(
@@ -31,7 +35,7 @@ class CreateConversationRequest(BaseModel):
 
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
-    content: str
+    content: str = Field(max_length=MAX_MESSAGE_LENGTH)
 
 
 class ConversationMetadata(BaseModel):
@@ -196,4 +200,5 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    # Local-only by default; set LLM_COUNCIL_HOST to expose on another interface.
+    uvicorn.run(app, host=os.getenv("LLM_COUNCIL_HOST", "127.0.0.1"), port=8001)
