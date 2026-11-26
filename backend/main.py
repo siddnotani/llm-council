@@ -8,9 +8,12 @@ from typing import List, Dict, Any
 import uuid
 import json
 import asyncio
+import logging
 
 from . import storage
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="LLM Council API")
 
@@ -180,9 +183,9 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
-        except Exception as e:
-            # Send error event
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        except Exception:
+            logger.exception("Error while streaming council response for conversation %s", conversation_id)
+            yield f"data: {json.dumps({'type': 'error', 'message': 'An internal error occurred while processing your message.'})}\n\n"
 
     return StreamingResponse(
         event_generator(),
